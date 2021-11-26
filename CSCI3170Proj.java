@@ -15,7 +15,7 @@ public class CSCI3170Proj {
     * Administrator operations starts
     */
     // Administrator operation 1: Create Table
-    public static void CreateTable(Connection con) { // TO-DO
+    public static void CreateTable(Connection con) {
         String TABLE_User_Category = "CREATE TABLE USER_CATEGORY(" +
             "ucid INTEGER PRIMARY KEY, " +
             "max INTEGER(2) NOT NULL, " +
@@ -62,8 +62,7 @@ public class CSCI3170Proj {
             stmt.executeUpdate(TABLE_Copy);
             stmt.executeUpdate(TABLE_Borrow);
             stmt.executeUpdate(TABLE_Authorship);
-            System.out.println("Table Created!");
-            //@override 
+            System.out.println("Done. Database is initialized.");
             Administrator(con);
         }catch (SQLException ex){
             // handle any errors
@@ -73,7 +72,7 @@ public class CSCI3170Proj {
         }
     }
     // Administrator operation 2: Delete Table
-    public static void DeleteTable(Connection con) { // TO-DO
+    public static void DeleteTable(Connection con) {
         String Delete_User_Category = "DROP TABLE IF EXISTS USER_CATEGORY";
         String Delete_LibUser = "DROP TABLE IF EXISTS LIBUSER";
         String Delete_Book_Category = "DROP TABLE IF EXISTS BOOK_CATEGORY";
@@ -94,6 +93,7 @@ public class CSCI3170Proj {
             stmt.executeUpdate(Delete_LibUser);
             stmt.executeUpdate(Delete_Book_Category);
             stmt.executeUpdate(Delete_Books);
+            System.out.println("Done. Database is removed.");
             //bookSystem(con);
         }catch (SQLException ex){
             System.out.println("SQLException: " + ex.getMessage());
@@ -166,14 +166,12 @@ public class CSCI3170Proj {
         System.out.println("5. Return to the main menu");
         System.out.print("Enter your choice: ");
         int inputAdmin = sc.nextInt();
-        if(inputAdmin == 1){ // TO-DO
+        if(inputAdmin == 1){
             //Create all tables
             CreateTable(con);
-            System.out.println("Done. Database is initialized.");
-        }else if(inputAdmin == 2){ // TO-DO
+        }else if(inputAdmin == 2){
             //Delete all tables
             DeleteTable(con);
-            System.out.println("Done. Database is removed.");
         }else if(inputAdmin == 3){ // TO-DO
             LoadDatafile(con);
             System.out.println("Done. Data is inputted to the database.");
