@@ -16,20 +16,36 @@ public class CSCI3170Proj {
     */
     // Administrator operation 1: Create Table
     public static void CreateTable(Connection con) { // TO-DO
-        String sql1 = "Create Table User_Category (" +
-            "ucid INTEGER(1) PRIMARY KEY, " +
-            "max INTEGER(2), " +
-            "period INTEGER(2))";
-        String sql2 = "Create Table Libuser (" +
+        /*
+        String TABLE_User_Category = "CREATE TABLE USER_CATEGORY(" +
+            "ucid INTEGER PRIMARY KEY, " +
+            "max INTEGER(2) NOT NULL, " +
+            "period INTEGER(2) NOT NULL)";
+        String TABLE_User = "CREATE TABLE LIBUSER(" +
             "libuid VARCHAR(10) PRIMARY KEY, " +
-            "name VARCHAR(25), " +
-            "age INTEGER, " +
-            "address VARCHAR(100), " +
-            "ucid INTEGER)";
+            "name VARCHAR(25) NOT NULL, " +
+            "age INTEGER(3) NOT NULL, " +
+            "address VARCHAR(100) NOT NULL, " +
+            "ucid INTEGER(1) NOT NULL)";
+        String TABLE_Book_Category = "CREATE TABLE BOOK_CATEGORY(" +
+            "bcid INTEGER(1) PRIMARY KEY, " +
+            "bcname VARCHAR(30) NOT NULL)";
+        String TABLE_Books = "CREATE TABLE BOOKS(" +
+            "callnum VARCHAR(8) NOT NULL, " +
+            "title VARCHAR(30) NOT NULL, " +
+            "publisg DATE, " +
+            "rating FLOAT, " +
+            "tborrowed INTEGER(2) NOT NULL, " +
+            "bcid INTEGER(1) NOT NULL)";
+        */
         try {
             Statement stmt = con.createStatement();
-            stmt.executeUpdate(sql1);
-            stmt.executeUpdate(sql2);
+            /*
+            stmt.executeUpdate(TABLE_User_Category);
+            stmt.executeUpdate(TABLE_User);
+            stmt.executeUpdate(TABLE_Book_Category);
+            stmt.executeUpdate(TABLE_Books);
+            */
             System.out.println("Table Created!");
         }catch (SQLException ex){
             // handle any errors
