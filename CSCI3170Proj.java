@@ -40,14 +40,19 @@ public class CSCI3170Proj {
             "copynum INT(1) PRIMARY KEY," +
             "callnum VARCHAR(8)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
-            /*
         String TABLE_Borrow = "CREATE TABLE BORROW(" +
-            "libuid VARCHAR(10) FOREIGN KEY REFERENCES LIBUSER(libuid), " +
-            "callnum VARCHAR(8) FOREIGN KEY REFERENCES BOOKS(callnum), " +
-            "copynum INT(1) FOREIGN KEY REFERENCES COPY(copynum), " +
+            "libuid VARCHAR(10), " +
+            "callnum VARCHAR(8), " +
+            "copynum INT(1), " +
             "checkout DATE PRIMARY KEY, " +
-            "return_date DATE)";
-            */
+            "return_date DATE, " +
+            "FOREIGN KEY (libuid) REFERENCES LIBUSER(libuid), " +
+            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum), " +
+            "FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
+        String TABLE_Authorship = "CREATE TABLE AUTHORSHIP(" +
+            "aname VARCHAR(25) PRIMARY KEY, " +
+            "callnum VARCHAR(8), " +
+            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))" ;
         try {
             Statement stmt = con.createStatement();
             stmt.executeUpdate(TABLE_User_Category);
@@ -55,7 +60,8 @@ public class CSCI3170Proj {
             stmt.executeUpdate(TABLE_Book_Category);
             stmt.executeUpdate(TABLE_Books);
             stmt.executeUpdate(TABLE_Copy);
-            // stmt.executeUpdate(TABLE_Borrow);
+            stmt.executeUpdate(TABLE_Borrow);
+            stmt.executeUpdate(TABLE_Authorship);
             System.out.println("Table Created!");
         }catch (SQLException ex){
             // handle any errors
@@ -70,12 +76,23 @@ public class CSCI3170Proj {
         String Delete_LibUser = "DROP TABLE IF EXISTS LIBUSER";
         String Delete_Book_Category = "DROP TABLE IF EXISTS BOOK_CATEGORY";
         String Delete_Books = "DROP TABLE IF EXISTS BOOKS";
+        String Delete_Copy = "DROP TABLE IF EXISTS COPY";
+        String Delete_Borrow = "DROP TABLE IF EXISTS BORROW";
+        String Delete_Authorship = "DROP TABLE IF EXISTS AUTHORSHIP";
+        
         try {
             Statement stmt = con.createStatement();
+            // delete the table with foreign key first
+            // borrow point to copy so need to delete borrow first
+            stmt.executeUpdate(Delete_Borrow);
+            stmt.executeUpdate(Delete_Copy);
+            stmt.executeUpdate(Delete_Authorship);
+
             stmt.executeUpdate(Delete_User_Category);
             stmt.executeUpdate(Delete_LibUser);
             stmt.executeUpdate(Delete_Book_Category);
             stmt.executeUpdate(Delete_Books);
+
         }catch (SQLException ex){
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
