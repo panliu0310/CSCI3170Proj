@@ -16,12 +16,11 @@ public class CSCI3170Proj {
     */
     // Administrator operation 1: Create Table
     public static void CreateTable(Connection con) { // TO-DO
-        /*
         String TABLE_User_Category = "CREATE TABLE USER_CATEGORY(" +
             "ucid INTEGER PRIMARY KEY, " +
             "max INTEGER(2) NOT NULL, " +
             "period INTEGER(2) NOT NULL)";
-        String TABLE_User = "CREATE TABLE LIBUSER(" +
+        String TABLE_LibUser = "CREATE TABLE LIBUSER(" +
             "libuid VARCHAR(10) PRIMARY KEY, " +
             "name VARCHAR(25) NOT NULL, " +
             "age INTEGER(3) NOT NULL, " +
@@ -31,21 +30,31 @@ public class CSCI3170Proj {
             "bcid INTEGER(1) PRIMARY KEY, " +
             "bcname VARCHAR(30) NOT NULL)";
         String TABLE_Books = "CREATE TABLE BOOKS(" +
-            "callnum VARCHAR(8) NOT NULL, " +
+            "callnum VARCHAR(8) PRIMARY KEY, " +
             "title VARCHAR(30) NOT NULL, " +
             "publisg DATE, " +
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
-        */
+            /*
+        String TABLE_Copy = "CREATE TABLE COPY(" +
+            "copynum INT(1) PRIMARY KEY)" +
+            "CONSTRAINT FOREIGN KEY (callnum) REFERENCES BOOKS(callnum), ";
+        String TABLE_Borrow = "CREATE TABLE BORROW(" +
+            "libuid VARCHAR(10) FOREIGN KEY REFERENCES LIBUSER(libuid), " +
+            "callnum VARCHAR(8) FOREIGN KEY REFERENCES BOOKS(callnum), " +
+            "copynum INT(1) FOREIGN KEY REFERENCES COPY(copynum), " +
+            "checkout DATE PRIMARY KEY, " +
+            "return_date DATE)";
+            */
         try {
             Statement stmt = con.createStatement();
-            /*
             stmt.executeUpdate(TABLE_User_Category);
-            stmt.executeUpdate(TABLE_User);
+            stmt.executeUpdate(TABLE_LibUser);
             stmt.executeUpdate(TABLE_Book_Category);
             stmt.executeUpdate(TABLE_Books);
-            */
+            // stmt.executeUpdate(TABLE_Copy);
+            // stmt.executeUpdate(TABLE_Borrow);
             System.out.println("Table Created!");
         }catch (SQLException ex){
             // handle any errors
@@ -55,8 +64,22 @@ public class CSCI3170Proj {
         }
     }
     // Administrator operation 2: Delete Table
-    public static void DeleteTable() { // TO-DO
-
+    public static void DeleteTable(Connection con) { // TO-DO
+        String Delete_User_Category = "DROP TABLE IF EXISTS USER_CATEGORY";
+        String Delete_LibUser = "DROP TABLE IF EXISTS LIBUSER";
+        String Delete_Book_Category = "DROP TABLE IF EXISTS BOOK_CATEGORY";
+        String Delete_Books = "DROP TABLE IF EXISTS BOOKS";
+        try {
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(Delete_User_Category);
+            stmt.executeUpdate(Delete_LibUser);
+            stmt.executeUpdate(Delete_Book_Category);
+            stmt.executeUpdate(Delete_Books);
+        }catch (SQLException ex){
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
     }
     // Administrator operation 3: Load data from a dataset
     public static void LoadDatafile() { // TO-DO
@@ -94,10 +117,11 @@ public class CSCI3170Proj {
         int inputAdmin = sc.nextInt();
         if(inputAdmin == 1){ // TO-DO
             //Create all tables
-            System.out.println("Done. Database is initialized.");
             CreateTable(con);
+            System.out.println("Done. Database is initialized.");
         }else if(inputAdmin == 2){ // TO-DO
             //Delete all tables
+            DeleteTable(con);
             System.out.println("Done. Database is removed.");
         }else if(inputAdmin == 3){ // TO-DO
             //Load from datafile
