@@ -36,7 +36,7 @@ public class CSCI3170Proj {
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
-        String TABLE_Copy = "CREATE TABLE COPY(" +
+        String TABLE_Copy = "CREATE TABLE COPIES(" +
             "copynum INT(1) PRIMARY KEY," +
             "callnum VARCHAR(8)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
@@ -57,6 +57,8 @@ public class CSCI3170Proj {
             stmt.executeUpdate(TABLE_Copy);
             // stmt.executeUpdate(TABLE_Borrow);
             System.out.println("Table Created!");
+            //@override 
+            Administrator(con);
         }catch (SQLException ex){
             // handle any errors
             System.out.println("SQLException: " + ex.getMessage());
@@ -76,6 +78,7 @@ public class CSCI3170Proj {
             stmt.executeUpdate(Delete_LibUser);
             stmt.executeUpdate(Delete_Book_Category);
             stmt.executeUpdate(Delete_Books);
+            //bookSystem(con);
         }catch (SQLException ex){
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
@@ -83,7 +86,38 @@ public class CSCI3170Proj {
         }
     }
     // Administrator operation 3: Load data from a dataset
-    public static void LoadDatafile() { // TO-DO
+    public static void LoadDatafile(Connection con) { // TO-DO
+        //load to USER_CATEGORY
+        String load_uc1 = "INSERT INTO USER_CATEGORY VALUES(1,	5,	3)";
+        String load_uc2 = "INSERT INTO USER_CATEGORY VALUES(2,	8,	6)";
+        String load_uc3 = "INSERT INTO USER_CATEGORY VALUES(3,	10,	12)";
+        String load_uc4 = "INSERT INTO USER_CATEGORY VALUES(4,	12,	12)";
+        String load_uc5 = "INSERT INTO USER_CATEGORY VALUES(5,	8,	12)";
+        String load_uc6 = "INSERT INTO USER_CATEGORY VALUES(6,	3,	3)";
+        String load_uc7 = "INSERT INTO USER_CATEGORY VALUES(7,	2,	3)";
+        try{
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(load_uc1);
+            stmt.executeUpdate(load_uc2);
+            stmt.executeUpdate(load_uc3);
+            stmt.executeUpdate(load_uc4);
+            stmt.executeUpdate(load_uc5);
+            stmt.executeUpdate(load_uc6);
+            stmt.executeUpdate(load_uc7);
+            System.out.println("Data is inputted to the database.");
+            //return;
+        }catch (SQLException ex){
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }
+
+
+
+
+
+
+
 
     }
     // Administrator operation 4: Show the number of records in each table
@@ -125,7 +159,7 @@ public class CSCI3170Proj {
             DeleteTable(con);
             System.out.println("Done. Database is removed.");
         }else if(inputAdmin == 3){ // TO-DO
-            //Load from datafile
+            LoadDatafile(con);
             System.out.println("Done. Data is inputted to the database.");
         }else if(inputAdmin == 4){ // TO-DO
             //Show the number of records in each table
