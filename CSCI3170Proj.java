@@ -36,10 +36,11 @@ public class CSCI3170Proj {
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
-            /*
         String TABLE_Copy = "CREATE TABLE COPY(" +
-            "copynum INT(1) PRIMARY KEY)" +
-            "CONSTRAINT FOREIGN KEY (callnum) REFERENCES BOOKS(callnum), ";
+            "copynum INT(1) PRIMARY KEY," +
+            "callnum VARCHAR(8)," +
+            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
+            /*
         String TABLE_Borrow = "CREATE TABLE BORROW(" +
             "libuid VARCHAR(10) FOREIGN KEY REFERENCES LIBUSER(libuid), " +
             "callnum VARCHAR(8) FOREIGN KEY REFERENCES BOOKS(callnum), " +
@@ -53,7 +54,7 @@ public class CSCI3170Proj {
             stmt.executeUpdate(TABLE_LibUser);
             stmt.executeUpdate(TABLE_Book_Category);
             stmt.executeUpdate(TABLE_Books);
-            // stmt.executeUpdate(TABLE_Copy);
+            stmt.executeUpdate(TABLE_Copy);
             // stmt.executeUpdate(TABLE_Borrow);
             System.out.println("Table Created!");
         }catch (SQLException ex){
