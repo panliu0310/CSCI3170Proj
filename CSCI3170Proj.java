@@ -111,10 +111,9 @@ public class CSCI3170Proj {
         try{
             Scanner infile = new Scanner(new File("./" + filename + "/user_category.txt"));
             String InsertUserCategorySQL = "INSERT INTO USER_CATEGORY VALUES";
-            String data = "";
-            System.out.println(data);
+            String data = "";  
             while (infile.hasNext()){
-                for (int i = 0; i < 3; i++){
+                for (int i = 0; i < 3; i++){ // there are 3 columns in USER_CATEGORY
                     if (data == ""){
                         data = data + infile.next(); 
                     } else {
@@ -138,43 +137,55 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadDatafile(Connection con) { // TO-DO
-        //load to USER_CATEGORY
-        /*
-        String load_uc1 = "INSERT INTO USER_CATEGORY VALUES(1,	5,	3)";
-        String load_uc2 = "INSERT INTO USER_CATEGORY VALUES(2,	8,	6)";
-        String load_uc3 = "INSERT INTO USER_CATEGORY VALUES(3,	10,	12)";
-        String load_uc4 = "INSERT INTO USER_CATEGORY VALUES(4,	12,	12)";
-        String load_uc5 = "INSERT INTO USER_CATEGORY VALUES(5,	8,	12)";
-        String load_uc6 = "INSERT INTO USER_CATEGORY VALUES(6,	3,	3)";
-        String load_uc7 = "INSERT INTO USER_CATEGORY VALUES(7,	2,	3)";
-        */
+    public static void LoadLibUser(Connection con, String filename) {
         try{
-            LoadUserCategory(con, "sample_data");
-            //Statement stmt = con.createStatement();
-            /*
-            stmt.executeUpdate(load_uc1);
-            stmt.executeUpdate(load_uc2);
-            stmt.executeUpdate(load_uc3);
-            stmt.executeUpdate(load_uc4);
-            stmt.executeUpdate(load_uc5);
-            stmt.executeUpdate(load_uc6);
-            stmt.executeUpdate(load_uc7);
-            */
+            Scanner infile = new Scanner(new File("./" + filename + "/user.txt"));
+            String dataTXT = "";
+            String dataSQL = "";
+            String InsertLibUser = "INSERT INTO LIBUSER VALUES";
+            while (infile.hasNextLine()){
+                dataTXT = dataTXT + infile.nextLine();
+                String[] rowDetail = new String[5];
+                rowDetail = dataTXT.split("\\t");
+                for (int i = 0; i < 5; i++) {
+                    if (dataSQL == "") {
+                        dataSQL += rowDetail[i];
+                    } else {
+                        dataSQL += ", " + rowDetail[i];
+                    }
+                }
+                System.out.println(dataSQL);
+                /*
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertLibUser + "(" + dataSQL + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                */
+                InsertLibUser = "";
+                dataTXT = "";
+                dataSQL = "";
+            }
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
+    public static void LoadDatafile(Connection con) { // TO-DO
+        try{
+            //LoadUserCategory(con, "sample_data");
+            //LoadLibUser(con, "sample_data"); BUG-EXISTS
+            
             System.out.println("Data is inputted to the database.");
-            //return;
         }catch (Exception ex){
             System.out.println(ex);
         }
-
-
-
-
-
-
-
-
     }
+
     // Administrator operation 4: Show the number of records in each table
     public static void ShowRecord(Connection con) {
         
