@@ -33,7 +33,7 @@ public class CSCI3170Proj {
         String TABLE_Books = "CREATE TABLE BOOKS(" +
             "callnum VARCHAR(8) PRIMARY KEY, " +
             "title VARCHAR(30) NOT NULL, " +
-            "publish DATE, " +
+            "publish VARCHAR(10), " +
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
@@ -45,8 +45,8 @@ public class CSCI3170Proj {
             "libuid VARCHAR(10), " +
             "callnum VARCHAR(8), " +
             "copynum INT(1), " +
-            "checkout DATE PRIMARY KEY, " +
-            "return_date DATE, " +
+            "checkout VARCHAR(10) PRIMARY KEY, " +
+            "return_date VARCHAR(10), " +
             "FOREIGN KEY (libuid) REFERENCES LIBUSER(libuid), " +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum), " +
             "FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
@@ -107,9 +107,9 @@ public class CSCI3170Proj {
     }
 
     // Administrator operation 3: Load data from a dataset
-    public static void LoadUserCategory(Connection con, String filename) {
+    public static void LoadUserCategory(Connection con, String path) {
         try{
-            Scanner infile = new Scanner(new File("./" + filename + "/user_category.txt"));
+            Scanner infile = new Scanner(new File("./" + path + "/user_category.txt"));
             String InsertUserCategorySQL = "INSERT INTO USER_CATEGORY VALUES";
             String data = "";  
             while (infile.hasNext()){
@@ -137,9 +137,9 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadLibUser(Connection con, String filename) {
+    public static void LoadLibUser(Connection con, String path) {
         try{
-            Scanner infile = new Scanner(new File("./" + filename + "/user.txt"));
+            Scanner infile = new Scanner(new File("./" + path + "/user.txt"));
             String dataTXT = "";
             String dataSQL = "";
             String InsertLibUserSQL = "INSERT INTO LIBUSER VALUES";
@@ -173,9 +173,9 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadBookCategory(Connection con, String filename) {
+    public static void LoadBookCategory(Connection con, String path) {
         try{
-            Scanner infile = new Scanner(new File("./" + filename + "/book_category.txt"));
+            Scanner infile = new Scanner(new File("./" + path + "/book_category.txt"));
             String dataTXT = "";
             String dataSQL = "";
             String InsertBookCategorySQL = "INSERT INTO BOOK_CATEGORY VALUES";
@@ -207,9 +207,9 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadBook(Connection con, String filename) {
+    public static void LoadBook(Connection con, String path) {
         try{
-            Scanner infile = new Scanner(new File("./" + filename + "/book.txt"));
+            Scanner infile = new Scanner(new File("./" + path + "/book.txt"));
             String dataTXT = "";
             String dataSQL = "";
             String InsertBooksSQL = "INSERT INTO BOOKS VALUES";
@@ -252,9 +252,9 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadCopy(Connection con, String filename) {
+    public static void LoadCopy(Connection con, String path) {
         try{
-            Scanner infile = new Scanner(new File("./" + filename + "/check_out.txt"));
+            Scanner infile = new Scanner(new File("./" + path + "/check_out.txt"));
             String dataTXT = "";
             String dataSQL = "";
             String InsertCopySQL = "INSERT INTO COPY VALUES";
@@ -287,13 +287,83 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadDatafile(Connection con) { // TO-DO
+    public static void LoadBorrow(Connection con, String path) {
         try{
-            //LoadUserCategory(con, "sample_data");
-            //LoadLibUser(con, "sample_data"); // BUG
-            //LoadBookCategory(con, "sample_data");
-            //LoadBook(con, "sample_data"); // TEST-REQUIRED
-            //LoadCopy(con, "sample_data"); // TEST-REQUIRED
+            Scanner infile = new Scanner(new File("./" + path + "/check_out.txt"));
+            String dataTXT = "";
+            String dataSQL = "";
+            String InsertBorrowSQL = "INSERT INTO BORROW VALUES";
+            while (infile.hasNextLine()){
+                dataTXT = dataTXT + infile.nextLine();
+                String[] rowDetail = new String[5]; // there are 5 columns in check_out.txt
+                rowDetail = dataTXT.split("\\t"); // split string by tab
+                /*
+                check_out.txt
+                callnum, copynum, libuid, checkout, return
+                rearrange to
+                libuid, callnum, copynum, checkout, return
+                0,1,2,3,4 ==> 2,0,1,3,4
+                */
+                dataSQL += "'" + rowDetail[2] + "', '" + rowDetail[0] + "', " + rowDetail[1] + ", '" + rowDetail[3] + "', '" + rowDetail[4] + "'";
+                System.out.println(dataSQL);
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertBorrowSQL + "(" + dataSQL + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                dataTXT = "";
+                dataSQL = "";
+            }
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
+    public static void LoadAuthorship(Connection con, String path) {
+        try{
+            Scanner infile = new Scanner(new File("./" + path + "/book.txt"));
+            String dataTXT = "";
+            String dataSQL = "";
+            String InsertAuthorshipSQL = "INSERT INTO AUTHORSHIP VALUES";
+            while (infile.hasNextLine()){
+                dataTXT = dataTXT + infile.nextLine();
+                String[] rowDetail = new String[8]; // there are 8 columns in book.txt
+                rowDetail = dataTXT.split("\\t"); // split string by tab
+                dataSQL += "'" + rowDetail[3] + "', '" + rowDetail[0] + "' ";
+                System.out.println(dataSQL);
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertAuthorshipSQL + "(" + dataSQL + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                dataTXT = "";
+                dataSQL = "";
+            }
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
+    public static void LoadDatafile(Connection con) { // TO-DO
+        Scanner sc = new Scanner(System.in);
+        System.out.print("\nType in the Source Data Folder Path: ");
+        String path = sc.nextString();
+        try{
+            //LoadUserCategory(con, path);
+            //LoadLibUser(con, path); // BUG
+            //LoadBookCategory(con, path);
+            //LoadBook(con, path); // TEST-REQUIRED
+            //LoadCopy(con, path); // TEST-REQUIRED
+            //LoadBorrow(con, path); // TEST-REQUIRED
+            //LoadAuthorship(con, path); // TEST-REQUIRED
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
