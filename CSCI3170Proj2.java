@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.Date;
 import java.sql.PreparedStatement;
 
-public class CSCI3170Proj {
+public class CSCI3170Proj2 {
 
     /*
     * Administrator operations starts
