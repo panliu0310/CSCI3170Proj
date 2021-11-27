@@ -73,6 +73,7 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
+
     // Administrator operation 2: Delete Table
     public static void DeleteTable(Connection con) {
         String Delete_User_Category = "DROP TABLE IF EXISTS USER_CATEGORY";
@@ -104,9 +105,42 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
+
     // Administrator operation 3: Load data from a dataset
+    public static void LoadUserCategory(Connection con, String filename) {
+        try{
+            Scanner infile = new Scanner(new File("./" + filename + "/user_category.txt"));
+            String InsertUserCategorySQL = "INSERT INTO USER_CATEGORY VALUES";
+            String data = "";
+            System.out.println(data);
+            while (infile.hasNext()){
+                for (int i = 0; i < 3; i++){
+                    if (data == ""){
+                        data = data + infile.next(); 
+                    } else {
+                        data = data + ", " + infile.next(); 
+                    }
+                }
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertUserCategorySQL + "(" + data + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                data = "";
+            }
+            System.out.println("Done. User_Category Loaded.");
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
     public static void LoadDatafile(Connection con) { // TO-DO
         //load to USER_CATEGORY
+        /*
         String load_uc1 = "INSERT INTO USER_CATEGORY VALUES(1,	5,	3)";
         String load_uc2 = "INSERT INTO USER_CATEGORY VALUES(2,	8,	6)";
         String load_uc3 = "INSERT INTO USER_CATEGORY VALUES(3,	10,	12)";
@@ -114,8 +148,11 @@ public class CSCI3170Proj {
         String load_uc5 = "INSERT INTO USER_CATEGORY VALUES(5,	8,	12)";
         String load_uc6 = "INSERT INTO USER_CATEGORY VALUES(6,	3,	3)";
         String load_uc7 = "INSERT INTO USER_CATEGORY VALUES(7,	2,	3)";
+        */
         try{
-            Statement stmt = con.createStatement();
+            LoadUserCategory(con, "sample_data");
+            //Statement stmt = con.createStatement();
+            /*
             stmt.executeUpdate(load_uc1);
             stmt.executeUpdate(load_uc2);
             stmt.executeUpdate(load_uc3);
@@ -123,12 +160,11 @@ public class CSCI3170Proj {
             stmt.executeUpdate(load_uc5);
             stmt.executeUpdate(load_uc6);
             stmt.executeUpdate(load_uc7);
+            */
             System.out.println("Data is inputted to the database.");
             //return;
-        }catch (SQLException ex){
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
+        }catch (Exception ex){
+            System.out.println(ex);
         }
 
 
