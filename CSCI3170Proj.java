@@ -2,6 +2,7 @@ import java.io.*;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -139,8 +140,33 @@ public class CSCI3170Proj {
 
     }
     // Administrator operation 4: Show the number of records in each table
-    public static void ShowRecord() { // TO-DO
-
+    public static void ShowRecord(Connection con) {
+        
+        String showRecordSQL = "SELECT table_name, table_rows " +
+            "FROM INFORMATION_SCHEMA.TABLES " +
+            "WHERE TABLE_SCHEMA = 'db14'; ";
+        
+        try {
+            Statement stmt = con.createStatement();
+            System.out.println("Number of records in each table");
+            ResultSet resultSet = stmt.executeQuery(showRecordSQL);
+            if(!resultSet.isBeforeFirst())
+	            System.out.println("No records found.");
+            else
+	            while(resultSet.next()){
+		            System.out.print(resultSet.getString("table_name"));
+                    System.out.print(": ");
+                    System.out.print(resultSet.getInt("table_rows"));
+                    System.out.print("\n");
+	            }
+        }catch (SQLException ex){
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }finally{
+            Administrator(con);
+        }
     }
 
     /*
@@ -178,12 +204,7 @@ public class CSCI3170Proj {
             LoadDatafile(con);
             System.out.println("Done. Data is inputted to the database.");
         }else if(inputAdmin == 4){ // TO-DO
-            //Show the number of records in each table
-            System.out.println("Number of records in each table: ");
-            System.out.println("Table1: "); //plus the table
-            System.out.println("Table2: "); //plus the table
-            System.out.println("Table3: "); //plus the table
-            System.out.println("Table4: "); //plus the table
+            ShowRecord(con);
         }else{
             try{
                 bookSystem(con);
