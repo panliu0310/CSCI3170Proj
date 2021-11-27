@@ -38,8 +38,8 @@ public class CSCI3170Proj {
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
         String TABLE_Copy = "CREATE TABLE COPY(" +
-            "copynum INT(1) PRIMARY KEY," +
             "callnum VARCHAR(8)," +
+            "copynum INT(1) PRIMARY KEY," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
         String TABLE_Borrow = "CREATE TABLE BORROW(" +
             "libuid VARCHAR(10), " +
@@ -113,7 +113,7 @@ public class CSCI3170Proj {
             String InsertUserCategorySQL = "INSERT INTO USER_CATEGORY VALUES";
             String data = "";  
             while (infile.hasNext()){
-                for (int i = 0; i < 3; i++){ // there are 3 columns in USER_CATEGORY
+                for (int i = 0; i < 3; i++){ // there are 3 columns in user_category.txt
                     if (data == ""){
                         data = data + infile.next(); 
                     } else {
@@ -181,7 +181,7 @@ public class CSCI3170Proj {
             String InsertBookCategorySQL = "INSERT INTO BOOK_CATEGORY VALUES";
             while (infile.hasNextLine()){
                 dataTXT = dataTXT + infile.nextLine();
-                String[] rowDetail = new String[2]; // there are 2 columns in BOOK_CATEGORY
+                String[] rowDetail = new String[2]; // there are 2 columns in book_category.txt
                 rowDetail = dataTXT.split("\\t");
                 for (int i = 0; i < 2; i++) {
                     if (i == 0) {
@@ -207,7 +207,7 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-    public static void LoadBook(Connection con) {
+    public static void LoadBook(Connection con, String filename) {
         try{
             Scanner infile = new Scanner(new File("./" + filename + "/book.txt"));
             String dataTXT = "";
@@ -215,7 +215,7 @@ public class CSCI3170Proj {
             String InsertBooksSQL = "INSERT INTO BOOKS VALUES";
             while (infile.hasNextLine()){
                 dataTXT = dataTXT + infile.nextLine();
-                String[] rowDetail = new String[8]; // there are 8 columns in BOOK_CATEGORY
+                String[] rowDetail = new String[8]; // there are 8 columns in book.txt
                 rowDetail = dataTXT.split("\\t");
                 /*
                 book.txt
@@ -227,7 +227,7 @@ public class CSCI3170Proj {
                 for (int i = 0; i < 8; i++) {
                     if (i == 0) {
                         dataSQL += "'" + rowDetail[i] + "'";
-                    else if (i == 2){
+                    }else if (i == 2){
                         dataSQL += ", '" + rowDetail[i] + "'";
                     }else if (i == 4) {
                         dataSQL += ", '" + rowDetail[i] + "'";
@@ -252,13 +252,48 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-
+    public static void LoadCopy(Connection con, String filename) {
+        try{
+            Scanner infile = new Scanner(new File("./" + filename + "/check_out.txt"));
+            String dataTXT = "";
+            String dataSQL = "";
+            String InsertCopySQL = "INSERT INTO COPY VALUES";
+            while (infile.hasNextLine()){
+                dataTXT = dataTXT + infile.nextLine();
+                String[] rowDetail = new String[5]; // there are 5 columns in check_out.txt
+                rowDetail = dataTXT.split("\\t");
+                for (int i = 0; i < 5; i++) {
+                    if (i == 0) {
+                        dataSQL += "'" + rowDetail[i] + "'";
+                    }else if (i == 1){
+                        dataSQL += ", " + rowDetail[i];
+                    }
+                }
+                System.out.println(dataSQL);
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertCopySQL + "(" + dataSQL + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                dataTXT = "";
+                dataSQL = "";
+            }
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
     public static void LoadDatafile(Connection con) { // TO-DO
         try{
             //LoadUserCategory(con, "sample_data");
             //LoadLibUser(con, "sample_data"); // BUG
             //LoadBookCategory(con, "sample_data");
             //LoadBook(con, "sample_data"); // TEST-REQUIRED
+            //LoadCopy(con, "sample_data"); // TEST-REQUIRED
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
