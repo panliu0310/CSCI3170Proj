@@ -142,7 +142,7 @@ public class CSCI3170Proj {
             Scanner infile = new Scanner(new File("./" + filename + "/user.txt"));
             String dataTXT = "";
             String dataSQL = "";
-            String InsertLibUser = "INSERT INTO LIBUSER VALUES";
+            String InsertLibUserSQL = "INSERT INTO LIBUSER VALUES";
             while (infile.hasNextLine()){
                 dataTXT = dataTXT + infile.nextLine();
                 String[] rowDetail = new String[5];
@@ -158,14 +158,50 @@ public class CSCI3170Proj {
                 /*
                 Statement stmt = con.createStatement();
                 try{
-                    stmt.executeUpdate(InsertLibUser + "(" + dataSQL + ")");
+                    stmt.executeUpdate(InsertLibUserSQL + "(" + dataSQL + ")");
                 }catch (SQLException ex){
                     System.out.println("SQLException: " + ex.getMessage());
                     System.out.println("SQLState: " + ex.getSQLState());
                     System.out.println("VendorError: " + ex.getErrorCode());
                 }
                 */
-                InsertLibUser = "";
+                //InsertLibUser = "";
+                dataTXT = "";
+                dataSQL = "";
+            }
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
+    public static void LoadBookCategory(Connection con, String filename) {
+        try{
+            Scanner infile = new Scanner(new File("./" + filename + "/book_category.txt"));
+            String dataTXT = "";
+            String dataSQL = "";
+            String InsertBookCategorySQL = "INSERT INTO BOOK_CATEGORY VALUES";
+            while (infile.hasNextLine()){
+                dataTXT = dataTXT + infile.nextLine();
+                String[] rowDetail = new String[2]; // there are 2 columns in BOOK_CATEGORY
+                rowDetail = dataTXT.split("\\t");
+                for (int i = 0; i < 2; i++) {
+                    if (i == 0) {
+                        dataSQL += rowDetail[i];
+                    } else {
+                        dataSQL += ", '" + rowDetail[i] + "'";
+                    }
+                }
+                System.out.println(dataSQL);
+                System.out.println(InsertBookCategorySQL + "(" + dataSQL + ")");
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertBookCategorySQL + "(" + dataSQL + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
                 dataTXT = "";
                 dataSQL = "";
             }
@@ -179,6 +215,7 @@ public class CSCI3170Proj {
         try{
             //LoadUserCategory(con, "sample_data");
             //LoadLibUser(con, "sample_data"); BUG-EXISTS
+            LoadBookCategory(con, "sample_data");
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
