@@ -209,9 +209,9 @@ public class CSCI3170Proj {
     }
     public static void LoadDatafile(Connection con) { // TO-DO
         try{
-            //LoadUserCategory(con, "sample_data");
-            //LoadLibUser(con, "sample_data");
-            //LoadBookCategory(con, "sample_data");
+            LoadUserCategory(con, "sample_data");
+            //LoadLibUser(con, "sample_data"); // BUG
+            LoadBookCategory(con, "sample_data");
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
