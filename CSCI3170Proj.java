@@ -147,15 +147,15 @@ public class CSCI3170Proj {
                 dataTXT = dataTXT + infile.nextLine();
                 String[] rowDetail = new String[5];
                 rowDetail = dataTXT.split("\\t");
-                for (int i = 0; i < 5; i++) {
-                    if (dataSQL == "") {
-                        dataSQL += rowDetail[i];
-                    } else {
+                for (int i = 0; i < 5; i++) { // 0,1,3 are string; 2,4 are integer
+                    if (i == 0) { // need to add single quote '' for string 
+                        dataSQL += "'" + rowDetail[i] + "'";
+                    } else if (i == 1 || i == 3) {
+                        dataSQL += ", '" + rowDetail[i] + "'"; // BUGS
+                    } else{
                         dataSQL += ", " + rowDetail[i];
                     }
                 }
-                System.out.println(dataSQL);
-                /*
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertLibUserSQL + "(" + dataSQL + ")");
@@ -164,8 +164,6 @@ public class CSCI3170Proj {
                     System.out.println("SQLState: " + ex.getSQLState());
                     System.out.println("VendorError: " + ex.getErrorCode());
                 }
-                */
-                //InsertLibUser = "";
                 dataTXT = "";
                 dataSQL = "";
             }
@@ -192,8 +190,6 @@ public class CSCI3170Proj {
                         dataSQL += ", '" + rowDetail[i] + "'";
                     }
                 }
-                System.out.println(dataSQL);
-                System.out.println(InsertBookCategorySQL + "(" + dataSQL + ")");
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertBookCategorySQL + "(" + dataSQL + ")");
@@ -214,8 +210,8 @@ public class CSCI3170Proj {
     public static void LoadDatafile(Connection con) { // TO-DO
         try{
             //LoadUserCategory(con, "sample_data");
-            //LoadLibUser(con, "sample_data"); BUG-EXISTS
-            LoadBookCategory(con, "sample_data");
+            //LoadLibUser(con, "sample_data");
+            //LoadBookCategory(con, "sample_data");
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
