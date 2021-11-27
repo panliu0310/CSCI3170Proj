@@ -36,7 +36,7 @@ public class CSCI3170Proj {
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
-        String TABLE_Copy = "CREATE TABLE COPIES(" +
+        String TABLE_Copy = "CREATE TABLE COPY(" +
             "copynum INT(1) PRIMARY KEY," +
             "callnum VARCHAR(8)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
@@ -63,12 +63,13 @@ public class CSCI3170Proj {
             stmt.executeUpdate(TABLE_Borrow);
             stmt.executeUpdate(TABLE_Authorship);
             System.out.println("Done. Database is initialized.");
-            Administrator(con);
         }catch (SQLException ex){
             // handle any errors
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
+        }finally{
+            Administrator(con);
         }
     }
     // Administrator operation 2: Delete Table
@@ -94,11 +95,12 @@ public class CSCI3170Proj {
             stmt.executeUpdate(Delete_Book_Category);
             stmt.executeUpdate(Delete_Books);
             System.out.println("Done. Database is removed.");
-            //bookSystem(con);
         }catch (SQLException ex){
             System.out.println("SQLException: " + ex.getMessage());
             System.out.println("SQLState: " + ex.getSQLState());
             System.out.println("VendorError: " + ex.getErrorCode());
+        }finally {
+            Administrator(con);
         }
     }
     // Administrator operation 3: Load data from a dataset
@@ -158,7 +160,7 @@ public class CSCI3170Proj {
     public static void Administrator(Connection con){ // TO-DO
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("What kind of operation would you like to perform?");
+        System.out.println("\nWhat kind of operation would you like to perform?");
         System.out.println("1. Create all tables");
         System.out.println("2. Delete all tables");
         System.out.println("3. Load from datafile");
@@ -197,7 +199,7 @@ public class CSCI3170Proj {
     public static void LibraryUser(Connection con){ // TO-DO
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("What kind of operation would you like to perform?");
+        System.out.println("\nWhat kind of operation would you like to perform?");
         System.out.println("1. Search for Books");
         System.out.println("2. Show loan record of a user");
         System.out.println("3. Return to the main menu");
@@ -241,7 +243,7 @@ public class CSCI3170Proj {
     public static void Librarian(Connection con) throws ParseException{ // TO-DO
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("What kind of operation would you like to perform?");
+        System.out.println("\nWhat kind of operation would you like to perform?");
         System.out.println("1. Book Borrowing");
         System.out.println("2. Book Returning");
         System.out.println("3. List all un-returbned book copies which are checked-out within a period");
@@ -302,7 +304,7 @@ public class CSCI3170Proj {
     public static void bookSystem(Connection con) throws ParseException{
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("What kinds of operations would you like to perform?");
+        System.out.println("\nWhat kinds of operations would you like to perform?");
         System.out.println("1. Operations for Administrator");
         System.out.println("2. Operations for Library User");
         System.out.println("3. Operations for Librarian");
