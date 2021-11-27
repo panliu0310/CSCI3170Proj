@@ -33,7 +33,7 @@ public class CSCI3170Proj {
         String TABLE_Books = "CREATE TABLE BOOKS(" +
             "callnum VARCHAR(8) PRIMARY KEY, " +
             "title VARCHAR(30) NOT NULL, " +
-            "publisg DATE, " +
+            "publish DATE, " +
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
@@ -207,11 +207,58 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
+    public static void LoadBook(Connection con) {
+        try{
+            Scanner infile = new Scanner(new File("./" + filename + "/book.txt"));
+            String dataTXT = "";
+            String dataSQL = "";
+            String InsertBooksSQL = "INSERT INTO BOOKS VALUES";
+            while (infile.hasNextLine()){
+                dataTXT = dataTXT + infile.nextLine();
+                String[] rowDetail = new String[8]; // there are 8 columns in BOOK_CATEGORY
+                rowDetail = dataTXT.split("\\t");
+                /*
+                book.txt
+                callnum, copynum, title, aname, publish, rating, tborrowed, bcid
+                we only need
+                callnum, title, publish, rating, tborrowed, bcid
+                i == 0, 2, 4, 5, 6, 7
+                */
+                for (int i = 0; i < 8; i++) {
+                    if (i == 0) {
+                        dataSQL += "'" + rowDetail[i] + "'";
+                    else if (i == 2){
+                        dataSQL += ", '" + rowDetail[i] + "'";
+                    }else if (i == 4) {
+                        dataSQL += ", '" + rowDetail[i] + "'";
+                    }else if (i == 5 || i == 6 || i == 7){
+                        dataSQL += ", " + rowDetail[i];
+                    }
+                }
+                Statement stmt = con.createStatement();
+                try{
+                    stmt.executeUpdate(InsertBooksSQL + "(" + dataSQL + ")");
+                }catch (SQLException ex){
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                dataTXT = "";
+                dataSQL = "";
+            }
+        }catch (Exception ex){
+            System.out.println(ex);
+        }finally{
+            Administrator(con);
+        }
+    }
+
     public static void LoadDatafile(Connection con) { // TO-DO
         try{
-            LoadUserCategory(con, "sample_data");
+            //LoadUserCategory(con, "sample_data");
             //LoadLibUser(con, "sample_data"); // BUG
-            LoadBookCategory(con, "sample_data");
+            //LoadBookCategory(con, "sample_data");
+            //LoadBook(con, "sample_data"); // TEST-REQUIRED
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
@@ -248,7 +295,6 @@ public class CSCI3170Proj {
             Administrator(con);
         }
     }
-
     /*
     * Administrator operations end
     * Library User operations start
