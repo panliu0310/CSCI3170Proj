@@ -515,7 +515,7 @@ System.out.println("catch input " + e);
             while(rs.next()){
                 System.out.print("callnum: " + rs.getString("callnum"));
                 System.out.print(", title: " + rs.getString("title"));
-                System.out.print(", publish: " + rs.getDate("publish"));
+                System.out.print(", publish: " + rs.getString("publish"));
                 System.out.println(", rating: " + rs.getFloat("rating"));
                 System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
                 System.out.println(", bcid: " + rs.getInt("bcid"));
@@ -525,7 +525,7 @@ System.out.println("catch input " + e);
             System.out.println("SQL Exception: " + ex.getMessage());                  
         }finally{
             //sc1.close();
-            //LibraryUser(con);
+            LibraryUser(con);
         }
     }
 
@@ -545,7 +545,7 @@ System.out.println("catch input " + e);
             while(rs.next()){
                 System.out.print("callnum: " + rs.getString("callnum"));
                 System.out.print(", title: " + rs.getString("title"));
-                System.out.print(", publish: " + rs.getDate("publish"));
+                System.out.print(", publish: " + rs.getString("publish"));
                 System.out.println(", rating: " + rs.getFloat("rating"));
                 System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
                 System.out.println(", bcid: " + rs.getInt("bcid"));
@@ -563,20 +563,17 @@ System.out.println("catch input " + e);
     public static void SearchForBooks_author(Connection con){
         Scanner sc3 = new Scanner(System.in);
         System.out.print("Type in the author: ");
-        String author = sc3.next();
+        String author = sc3.nextLine();
         //Show the result of the search
-        //System.out.println(author);
-        //String select_callnum = "SELECT callnum FROM BOOKS WHERE callnum = " + sk; 
         try{
-            //System.out.println(sk);
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN AUTHORSHIP WHERE aname = ?");                    
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN AUTHORSHIP WHERE BOOKS.callnum = AUTHORSHIP.callnum AND aname LIKE CONCAT('%',?,'%')");                    
             ps.setString(1, author);
             
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 System.out.print("callnum: " + rs.getString("callnum"));
                 System.out.print(", title: " + rs.getString("title"));
-                System.out.print(", publish: " + rs.getDate("publish"));
+                System.out.print(", publish: " + rs.getString("publish"));
                 System.out.println(", rating: " + rs.getFloat("rating"));
                 System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
                 System.out.println(", bcid: " + rs.getInt("bcid"));
@@ -598,7 +595,7 @@ System.out.println("catch input " + e);
         try{
             System.out.println("Loan Record: ");
             //show all loan record of the user
-            PreparedStatement ps = con.prepareStatement("SELECT BORROW.callnum, BORROW.copynum, BOOKS.title, AUTHORSHIP.aname, BORROW.checkout, BORROW.return_date FROM BORROW JOIN AUTHORSHIP JOIN BOOKS JOIN LIBUSER WHERE BORROW.libuid = LIBUSER.libuid AND BORROW.libuid = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT BORROW.callnum, BORROW.copynum, BOOKS.title, AUTHORSHIP.aname, BORROW.checkout, BORROW.return_date FROM BORROW JOIN AUTHORSHIP JOIN BOOKS JOIN LIBUSER WHERE BOOKS.callnum = AUTHORSHIP.callnum AND BORROW.libuid = LIBUSER.libuid AND BOOKS.callnum = BORROW.callnum AND BORROW.libuid = ?");
             ps.setString(1, userid);
 
             ResultSet rs = ps.executeQuery();
@@ -607,8 +604,8 @@ System.out.println("catch input " + e);
                 System.out.print(", copynum: " + rs.getInt("copynum"));
                 System.out.print(", title: " + rs.getString("title"));
                 System.out.println(", author: " + rs.getString("aname"));
-                System.out.print(", checkout date: " + rs.getDate("checkout"));
-                System.out.println(", return date: " + rs.getDate("return_date"));
+                System.out.print(", checkout date: " + rs.getString("checkout"));
+                System.out.println(", return date: " + rs.getString("return_date"));
                 System.out.println("End of Query");
             }
             
