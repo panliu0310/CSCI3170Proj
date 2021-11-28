@@ -1,5 +1,6 @@
 import java.io.*;
 import java.io.PrintStream;
+import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -9,7 +10,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.sql.PreparedStatement;
 
 public class CSCI3170Proj {
 
@@ -34,26 +34,29 @@ public class CSCI3170Proj {
         String TABLE_Books = "CREATE TABLE BOOKS(" +
             "callnum VARCHAR(8) PRIMARY KEY, " +
             "title VARCHAR(30) NOT NULL, " +
-            "publish VARCHAR(10), " +
+            "publish VARCHAR(10) NOT NULL, " +
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
         String TABLE_Copy = "CREATE TABLE COPY(" +
-            "callnum VARCHAR(8)," +
-            "copynum INT(1) PRIMARY KEY," +
+            "callnum VARCHAR(8) NOT NULL," +
+            "copynum INTEGER NOT NULL," +
+            "PRIMARY KEY (callnum, copynum)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
         String TABLE_Borrow = "CREATE TABLE BORROW(" +
-            "libuid VARCHAR(10), " +
-            "callnum VARCHAR(8), " +
-            "copynum INT(1), " +
-            "checkout VARCHAR(10) PRIMARY KEY, " +
+            "libuid VARCHAR(10) NOT NULL, " +
+            "callnum VARCHAR(8) NOT NULL, " +
+            "copynum INTEGER NOT NULL, " +
+            "checkout VARCHAR(10) NOT NULL, " +
             "return_date VARCHAR(10), " +
+            "PRIMARY KEY (libuid, callnum, copynum, checkout)," +
             "FOREIGN KEY (libuid) REFERENCES LIBUSER(libuid), " +
-            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum), " +
-            "FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
+            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
+            //"FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
         String TABLE_Authorship = "CREATE TABLE AUTHORSHIP(" +
-            "aname VARCHAR(25) PRIMARY KEY, " +
+            "aname VARCHAR(767), " +
             "callnum VARCHAR(8), " +
+            "PRIMARY KEY (aname, callnum)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))" ;
         try {
             Statement stmt = con.createStatement();
@@ -131,47 +134,36 @@ public class CSCI3170Proj {
                 }
                 data = "";
             }
-            System.out.println("Done. User_Category Loaded.");
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadLibUser(Connection con, String path) {
         try{
             Scanner infile = new Scanner(new File("./" + path + "/user.txt"));
             String dataTXT = "";
-            String dataSQL = "";
-            String InsertLibUserSQL = "INSERT INTO LIBUSER VALUES";
+            String InsertLibUserPSQL = "INSERT INTO LIBUSER VALUES(?,?,?,?,?)";
             while (infile.hasNextLine()){
                 dataTXT = dataTXT + infile.nextLine();
                 String[] rowDetail = new String[5];
                 rowDetail = dataTXT.split("\\t");
-                for (int i = 0; i < 5; i++) { // 0,1,3 are string; 2,4 are integer
-                    if (i == 0) { // need to add single quote '' for string 
-                        dataSQL += "'" + rowDetail[i] + "'";
-                    } else if (i == 1 || i == 3) {
-                        dataSQL += ", '" + rowDetail[i] + "'"; // BUGS
-                    } else{
-                        dataSQL += ", " + rowDetail[i];
-                    }
-                }
-                Statement stmt = con.createStatement();
+                PreparedStatement pstmt = con.prepareStatement(InsertLibUserPSQL);
+                pstmt.setString(1, rowDetail[0]);
+                pstmt.setString(2, rowDetail[1]);
+                pstmt.setInt(3, Integer.parseInt(rowDetail[2]));
+                pstmt.setString(4, rowDetail[3]);
+                pstmt.setInt(5, Integer.parseInt(rowDetail[4]));
                 try{
-                    stmt.executeUpdate(InsertLibUserSQL + "(" + dataSQL + ")");
+                    pstmt.executeUpdate();
                 }catch (SQLException ex){
                     System.out.println("SQLException: " + ex.getMessage());
                     System.out.println("SQLState: " + ex.getSQLState());
                     System.out.println("VendorError: " + ex.getErrorCode());
                 }
                 dataTXT = "";
-                dataSQL = "";
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadBookCategory(Connection con, String path) {
@@ -204,8 +196,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadBook(Connection con, String path) {
@@ -249,8 +239,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadCopy(Connection con, String path) {
@@ -270,7 +258,6 @@ public class CSCI3170Proj {
                         dataSQL += ", " + rowDetail[i];
                     }
                 }
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertCopySQL + "(" + dataSQL + ")");
@@ -284,8 +271,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadBorrow(Connection con, String path) {
@@ -306,7 +291,6 @@ public class CSCI3170Proj {
                 0,1,2,3,4 ==> 2,0,1,3,4
                 */
                 dataSQL += "'" + rowDetail[2] + "', '" + rowDetail[0] + "', " + rowDetail[1] + ", '" + rowDetail[3] + "', '" + rowDetail[4] + "'";
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertBorrowSQL + "(" + dataSQL + ")");
@@ -320,8 +304,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadAuthorship(Connection con, String path) {
@@ -335,7 +317,6 @@ public class CSCI3170Proj {
                 String[] rowDetail = new String[8]; // there are 8 columns in book.txt
                 rowDetail = dataTXT.split("\\t"); // split string by tab
                 dataSQL += "'" + rowDetail[3] + "', '" + rowDetail[0] + "' ";
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertAuthorshipSQL + "(" + dataSQL + ")");
@@ -349,26 +330,30 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadDatafile(Connection con) { // TO-DO
         Scanner sc = new Scanner(System.in);
         System.out.print("\nType in the Source Data Folder Path: ");
+<<<<<<< HEAD
         //String path = sc.nextString();
+=======
+        String path = sc.next();
+>>>>>>> 55c7356ce492e73cfc2fd4393aad5495200867d5
         try{
-            //LoadUserCategory(con, path);
-            //LoadLibUser(con, path); // BUG
-            //LoadBookCategory(con, path);
-            //LoadBook(con, path); // TEST-REQUIRED
-            //LoadCopy(con, path); // TEST-REQUIRED
-            //LoadBorrow(con, path); // TEST-REQUIRED
-            //LoadAuthorship(con, path); // TEST-REQUIRED
+            LoadUserCategory(con, path);
+            LoadLibUser(con, path); // BUG user000003 didnt work
+            LoadBookCategory(con, path);
+            LoadBook(con, path);
+            LoadCopy(con, path);
+            LoadBorrow(con, path);
+            LoadAuthorship(con, path);
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
             System.out.println(ex);
+        }finally{
+            Administrator(con);
         }
     }
 
@@ -410,7 +395,77 @@ public class CSCI3170Proj {
     * Library User operations end
     * Librarian operations start
     */
+    public static void BorrowBook(Connection con){
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter The User ID: ");
+        String user = sc.nextLine();
+        System.out.print("Enter The Call Number: ");
+        String callNumber = sc.nextLine();
+        System.out.print("Enter The Copy Number: ");
+        String CopyNumber = sc.nextLine();
 
+        boolean canBorrow = false; // if the book is not borrowed, set canBorrow be true
+
+        try {
+            String checkReturnSQL = "SELECT return_date FROM BORROW WHERE " +
+                "callnum = ? AND copynum = ?";
+            PreparedStatement pstmt = con.prepareStatement(checkReturnSQL);
+            pstmt.setString(1, callNumber);
+            pstmt.setInt(2, Integer.parseInt(CopyNumber));
+            ResultSet resultSet = pstmt.executeQuery();
+            if(!resultSet.isBeforeFirst())
+	            canBorrow = true;
+            else{
+                resultSet.last();
+                if (resultSet.getString("return_date") == "null"){
+                    canBorrow = true;
+                } else{
+                    canBorrow = false;
+                }
+            }
+        }catch (SQLException ex){
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }finally{
+            if (canBorrow == true){
+                String borrowBookSQL = "INSERT INTO BORROW VALUES(?,?,?,?,?)";
+                try{
+                    PreparedStatement pstmt = con.prepareStatement(borrowBookSQL);
+                    pstmt.setString(1, user);
+                    pstmt.setString(2, callNumber);
+                    pstmt.setString(3, CopyNumber);
+                    String datePattern = "dd/MM/yyyy";
+                    String dateInString = new SimpleDateFormat(datePattern).format(new Date());
+                    pstmt.setString(4, dateInString);
+                    pstmt.setString(5, "null");
+                    pstmt.executeUpdate();
+                    System.out.println("Book borrowing performed successfully.");
+                }catch (SQLException ex){
+                    // handle any errors
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+            }
+            try{
+                Librarian(con);
+            }catch (Exception ex){
+
+            }
+        }
+
+            //check if the user id, call no. and copy no. are exist, if yes:
+            //else
+            System.out.println("Book borrowing failed.");
+    }
+    public static void ReturnBook(){
+
+    }
+    public static void ListAllUnReturnedBook(){
+
+    }
     /*
     * Librarian operations end
     */
@@ -434,7 +489,6 @@ public class CSCI3170Proj {
             DeleteTable(con);
         }else if(inputAdmin == 3){ // TO-DO
             LoadDatafile(con);
-            System.out.println("Done. Data is inputted to the database.");
         }else if(inputAdmin == 4){ // TO-DO
             ShowRecord(con);
         }else{
@@ -453,6 +507,7 @@ public class CSCI3170Proj {
         try{
             Scanner sc_lb = new Scanner(System.in);
 
+<<<<<<< HEAD
             System.out.println("\nWhat kind of operation would you like to perform?");
             System.out.println("1. Search for Books");
             System.out.println("2. Show loan record of a user");
@@ -550,8 +605,7 @@ System.out.println("catch input " + e);
                 System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
                 System.out.println(", bcid: " + rs.getInt("bcid"));
                 System.out.println("End of Query");
-            }
-            
+            }            
         }catch (Exception ex){
             System.out.println("SQL Exception: " + ex.getMessage());
         }finally{
@@ -630,19 +684,8 @@ System.out.println("catch input " + e);
         System.out.println("4. Return to the main menu");
         System.out.print("Enter your choice: ");
         int inputLib = sc.nextInt();
-        if(inputLib == 1){ // TO-DO
-            System.out.print("Enter The User ID: ");
-            String user = sc.nextLine();
-            System.out.print("Enter The Call Number: ");
-            String callNumber = sc.nextLine();
-            System.out.print("Enter The Copy Number: ");
-            String CopyNumber = sc.nextLine();
-
-            //check if the user id, call no. and copy no. are exist, if yes:
-            //if(user ==  && if callNumber == && if CopyNumber ==) {}
-            System.out.println("Book borrowing performed successfully.");
-            //else
-            System.out.println("Book borrowing failed.");
+        if(inputLib == 1){
+            BorrowBook(con);
         }else if(inputLib == 2){ // TO-DO
             System.out.print("Enter The User ID: ");
             String user = sc.nextLine();
