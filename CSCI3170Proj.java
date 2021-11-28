@@ -356,7 +356,7 @@ public class CSCI3170Proj {
     public static void LoadDatafile(Connection con) { // TO-DO
         Scanner sc = new Scanner(System.in);
         System.out.print("\nType in the Source Data Folder Path: ");
-        String path = sc.nextString();
+        //String path = sc.nextString();
         try{
             //LoadUserCategory(con, path);
             //LoadLibUser(con, path); // BUG
@@ -446,76 +446,181 @@ public class CSCI3170Proj {
             }
         }
 
-        sc.close();
+        //sc.close();
     }
 
     public static void LibraryUser(Connection con){ // TO-DO
-        Scanner sc = new Scanner(System.in);
+        try{
+            Scanner sc_lb = new Scanner(System.in);
 
-        System.out.println("\nWhat kind of operation would you like to perform?");
-        System.out.println("1. Search for Books");
-        System.out.println("2. Show loan record of a user");
-        System.out.println("3. Return to the main menu");
-        System.out.print("Enter your choice: ");
-        int inputLU = sc.nextInt();
-        if(inputLU == 1){ // TO-DO
-            System.out.println("Choose the Search criterion: ");
-            System.out.println("1. call number");
-            System.out.println("2. title");
-            System.out.println("3. author");
-            System.out.println("Choose the search criterion: ");
-            int crit = sc.nextInt();
-            if(crit == 1){ // TO-DO
-                System.out.print("Type in the Search Keyword: ");
-                String sk = sc.next();
-                System.out.println(sk);
-                //String select_callnum = "SELECT callnum FROM BOOKS WHERE callnum = " + sk; 
-                try{
-                    //System.out.println(sk);
-                    PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS WHERE callnum = ?");                    
-                    ps.setString(1, sk);
-                    
-                    ResultSet rs = ps.executeQuery();
-                    while(rs.next()){
-                        System.out.print("callnum: " + rs.getString("callnum"));
-                        System.out.print(", title: " + rs.getString("title"));
-                        System.out.print(", publisg: " + rs.getDate("publisg"));
-                        System.out.println(", rating: " + rs.getFloat("rating"));
-                        System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
-                        System.out.println(", bcid: " + rs.getInt("bcid"));
-                    }
-                    //System.out.println(ps);
-                    System.out.println("End of Query");
-                }catch (Exception ex){
-                    System.out.println("SQL Exception: " + ex.getMessage());
-                   // System.out.println("SQLState: " + ex.getSQLState());
-                   // System.out.println("VendorError: " + ex.getErrorCode());
-                }finally{
-                    LibraryUser(con);
-                }
-                //Show the result of the search
-            }else if(crit == 2){ // TO-DO
-                System.out.print("Type in the title: ");
-                String title = sc.next();
-                //Show the result of the search
-            }else{ // TO-DO
-                System.out.print("Type in the author: ");
-                String author = sc.next();
-                //Show the result of the search
-            }
-        }else if(inputLU == 2){ // TO-DO
-            System.out.println("Enter The User ID: ");
-            String user = sc.next();
-            System.out.println("Loan Record");
-            //show all loan record of the user
-        }else{
+            System.out.println("\nWhat kind of operation would you like to perform?");
+            System.out.println("1. Search for Books");
+            System.out.println("2. Show loan record of a user");
+            System.out.println("3. Return to the main menu");
+            System.out.print("Enter your choice: ");
+            int inputLU = 1;
             try{
-                bookSystem(con);
-            } catch(Exception e) {
-                System.out.println("Fail to escape from Library User to main menu");
-                System.exit(0);
+                inputLU = Integer.parseInt(sc_lb.nextLine());
+            }catch (Exception e){
+System.out.println("catch input " + e);
             }
+            
+            if(inputLU == 1){ // TO-DO
+                Scanner sc_lb1 = new Scanner(System.in);
+                System.out.println("Choose the Search criterion: ");
+                System.out.println("1. call number");
+                System.out.println("2. title");
+                System.out.println("3. author");
+                System.out.print("Choose the search criterion: ");
+                int crit = sc_lb1.nextInt();
+                if(crit == 1){ // TO-DO
+                    SearchForBooks_callnum(con);
+                    //Show the result of the search
+                }else if(crit == 2){ // TO-DO
+                    SearchForBooks_title(con);
+                    //Show the result of the search
+                }else{ // TO-DO
+                    SearchForBooks_author(con);
+                }
+            }else if(inputLU == 2){ //show all loan record of the user
+                    ShowLoanRecord(con);
+            }else{
+                try{
+                    bookSystem(con);
+                } catch(Exception e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("Fail to escape from Library User to main menu");
+                    System.exit(0);
+                }
+            }
+                   
+        }catch(Exception e){
+            System.out.println("hi");
+            System.out.println (e);
         }
+    }
+
+    public static void SearchForBooks_callnum(Connection con){
+        Scanner sc1 = new Scanner(System.in);
+        System.out.print("Type in the Search Keyword: ");
+        String sk = sc1.next();
+        //System.out.println(sk);
+        //String select_callnum = "SELECT callnum FROM BOOKS WHERE callnum = " + sk; 
+        try{
+            //System.out.println(sk);
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS WHERE callnum = ?");                    
+            ps.setString(1, sk);
+            
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                System.out.print("callnum: " + rs.getString("callnum"));
+                System.out.print(", title: " + rs.getString("title"));
+                System.out.print(", publish: " + rs.getDate("publish"));
+                System.out.println(", rating: " + rs.getFloat("rating"));
+                System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
+                System.out.println(", bcid: " + rs.getInt("bcid"));
+                System.out.println("End of Query");
+            }             
+        }catch (Exception ex){
+            System.out.println("SQL Exception: " + ex.getMessage());                  
+        }finally{
+            //sc1.close();
+            //LibraryUser(con);
+        }
+    }
+
+    public static void SearchForBooks_title(Connection con){
+        Scanner sc2 = new Scanner(System.in);
+    
+        System.out.print("Type in the title: ");
+        //System.out.println("Hello");
+        String title = sc2.nextLine();
+        //System.out.println(title);
+        try{
+            //System.out.println(title);
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS WHERE title = ?");                    
+            ps.setString(1, title);
+            
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                System.out.print("callnum: " + rs.getString("callnum"));
+                System.out.print(", title: " + rs.getString("title"));
+                System.out.print(", publish: " + rs.getDate("publish"));
+                System.out.println(", rating: " + rs.getFloat("rating"));
+                System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
+                System.out.println(", bcid: " + rs.getInt("bcid"));
+                System.out.println("End of Query");
+            }
+            
+        }catch (Exception ex){
+            System.out.println("SQL Exception: " + ex.getMessage());
+        }finally{
+            //sc2.close();
+            LibraryUser(con);
+        }
+    }
+
+    public static void SearchForBooks_author(Connection con){
+        Scanner sc3 = new Scanner(System.in);
+        System.out.print("Type in the author: ");
+        String author = sc3.next();
+        //Show the result of the search
+        //System.out.println(author);
+        //String select_callnum = "SELECT callnum FROM BOOKS WHERE callnum = " + sk; 
+        try{
+            //System.out.println(sk);
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN AUTHORSHIP WHERE aname = ?");                    
+            ps.setString(1, author);
+            
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                System.out.print("callnum: " + rs.getString("callnum"));
+                System.out.print(", title: " + rs.getString("title"));
+                System.out.print(", publish: " + rs.getDate("publish"));
+                System.out.println(", rating: " + rs.getFloat("rating"));
+                System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
+                System.out.println(", bcid: " + rs.getInt("bcid"));
+                System.out.println("End of Query");
+            }
+            
+        }catch (Exception ex){
+            System.out.println("SQL Exception: " + ex.getMessage());
+        }finally{
+            //sc3.close();
+            LibraryUser(con);
+        }
+    }
+
+    public static void ShowLoanRecord(Connection con){
+        Scanner sc4 = new Scanner(System.in);
+        System.out.print("Enter The User ID: ");
+        String userid = sc4.nextLine();
+        try{
+            System.out.println("Loan Record: ");
+            //show all loan record of the user
+            PreparedStatement ps = con.prepareStatement("SELECT BORROW.callnum, BORROW.copynum, BOOKS.title, AUTHORSHIP.aname, BORROW.checkout, BORROW.return_date FROM BORROW JOIN AUTHORSHIP JOIN BOOKS JOIN LIBUSER WHERE BORROW.libuid = LIBUSER.libuid AND BORROW.libuid = ?");
+            ps.setString(1, userid);
+
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                System.out.print("callnum: " + rs.getString("callnum"));
+                System.out.print(", copynum: " + rs.getInt("copynum"));
+                System.out.print(", title: " + rs.getString("title"));
+                System.out.println(", author: " + rs.getString("aname"));
+                System.out.print(", checkout date: " + rs.getDate("checkout"));
+                System.out.println(", return date: " + rs.getDate("return_date"));
+                System.out.println("End of Query");
+            }
+            
+        }catch (Exception ex){
+            System.out.println("SQL Exception: " + ex.getMessage());
+        }finally{
+            //sc4.close();
+            //sc_lb.close();
+            LibraryUser(con);
+            //bookSystem(con);
+        }
+        
     }
 
     public static void Librarian(Connection con) throws ParseException{ // TO-DO
@@ -599,7 +704,7 @@ public class CSCI3170Proj {
             System.out.println("Program exit");
             System.exit(0);
         }
-        sc.close();
+        //sc.close();
         //System.out.println("Your choice is " + input);
         //System.out.println(sc.nextInt());
 
@@ -620,6 +725,8 @@ public class CSCI3170Proj {
             try{
                 bookSystem(con);
             } catch(Exception e) {
+                System.out.println(e);
+                //System.out.println(errors);
                 System.out.println("Fail to get in book system initially");
                 System.exit(0);
             }
