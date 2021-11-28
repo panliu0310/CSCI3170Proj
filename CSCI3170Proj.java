@@ -354,11 +354,9 @@ public class CSCI3170Proj {
 
     // Administrator operation 4: Show the number of records in each table
     public static void ShowRecord(Connection con) {
-        
         String showRecordSQL = "SELECT table_name, table_rows " +
             "FROM INFORMATION_SCHEMA.TABLES " +
             "WHERE TABLE_SCHEMA = 'db14'; ";
-        
         try {
             Statement stmt = con.createStatement();
             System.out.println("Number of records in each table");
@@ -385,57 +383,6 @@ public class CSCI3170Proj {
     * Administrator operations end
     * Library User operations start
     */
-    public static void LibraryUser(Connection con){
-        try{
-            Scanner sc_lb = new Scanner(System.in);
-
-            System.out.println("\nWhat kind of operation would you like to perform?");
-            System.out.println("1. Search for Books");
-            System.out.println("2. Show loan record of a user");
-            System.out.println("3. Return to the main menu");
-            System.out.print("Enter your choice: ");
-            int inputLU = 1;
-            try{
-                inputLU = Integer.parseInt(sc_lb.nextLine());
-            }catch (Exception e){
-                System.out.println("catch input " + e);
-            }
-            
-            if(inputLU == 1){
-                Scanner sc_lb1 = new Scanner(System.in);
-                System.out.println("Choose the Search criterion: ");
-                System.out.println("1. call number");
-                System.out.println("2. title");
-                System.out.println("3. author");
-                System.out.print("Choose the search criterion: ");
-                int crit = sc_lb1.nextInt();
-                if(crit == 1){
-                    SearchForBooks_callnum(con);
-                    //Show the result of the search
-                }else if(crit == 2){
-                    SearchForBooks_title(con);
-                    //Show the result of the search
-                }else{ // TO-DO
-                    SearchForBooks_author(con);
-                }
-            }else if(inputLU == 2){ //show all loan record of the user
-                    ShowLoanRecord(con);
-            }else{
-                try{
-                    bookSystem(con);
-                } catch(Exception e) {
-                    System.out.println(e.getMessage());
-                    System.out.println("Fail to escape from Library User to main menu");
-                    System.exit(0);
-                }
-            }
-                   
-        }catch(Exception e){
-            System.out.println("hi");
-            System.out.println (e);
-        }
-    }
-
     public static void SearchForBooks_callnum(Connection con){
         Scanner sc1 = new Scanner(System.in);
         System.out.print("Type in the Search Keyword: ");
@@ -622,14 +569,98 @@ public class CSCI3170Proj {
             //else
             System.out.println("Book borrowing failed.");
     }
-    public static void ReturnBook(){
+    public static void ReturnBook(Connection con){
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter The User ID: ");
         String user = sc.nextLine();
         System.out.print("Enter The Call Number: ");
         String callNumber = sc.nextLine();
         System.out.print("Enter The Copy Number: ");
-        String CopyNumber = sc.nextLine();
+        String copyNumber = sc.nextLine();
+        System.out.print("Enter Your Rating of the Book: ");
+        String userRating = sc.nextLine();
+
+        try { // check the book has been borrowed
+            String checkReturnSQL = "SELECT * FROM BORROW WHERE " +
+                "libuid = ? AND callnum = ? AND copynum = ? AND return_date = ?";
+            PreparedStatement pstmt = con.prepareStatement(checkReturnSQL);
+            pstmt.setString(1, user);
+            pstmt.setString(2, callNumber);
+            pstmt.setInt(3, Integer.parseInt(copyNumber));
+            pstmt.setString(4, "null");
+            ResultSet resultSet = pstmt.executeQuery();
+            if(!resultSet.isBeforeFirst())
+                System.out.println("[Error]: An matching borrow record is not found. The book has not been borrowed yet.");
+            else{
+                //UPDATE BORROW
+                try{
+                    String returnBookSQL = "UPDATE BORROW SET return_date = ? WHERE " +
+                        "libuid = ? AND callnum = ? AND copynum = ? AND return_date = ?";
+                    PreparedStatement pstmt2 = con.prepareStatement(returnBookSQL);
+                    String datePattern = "dd/MM/yyyy";
+                    String dateInString = new SimpleDateFormat(datePattern).format(new Date());
+                    pstmt2.setString(1, dateInString);
+                    pstmt2.setString(2, user);
+                    pstmt2.setString(3, callNumber);
+                    pstmt2.setInt(4, Integer.parseInt(copyNumber));
+                    pstmt2.setString(5, "null");
+                    pstmt2.executeUpdate();
+                }catch (SQLException ex){
+                    // handle any errors
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+                // UPDATE BOOKS
+                try{
+                    // get original book rating
+                    String getBookRatingSQL = "SELECT rating, tborrowed FROM BOOKS WHERE callnum = '" + callNumber + "'";
+                    Statement stmt = con.createStatement();
+                    ResultSet resultSet2 = stmt.executeQuery(getBookRatingSQL);
+                    float bookRating = 0;
+                    int timeBorrowed = 0;
+                    if(!resultSet2.isBeforeFirst())
+                        System.out.println("No records found.");
+                    else{
+                        while(resultSet2.next()){
+                            if(resultSet2.getString("rating") == "null"){
+                                bookRating = 0;
+                            }else{
+                                bookRating = resultSet2.getFloat("rating");
+                                timeBorrowed = resultSet2.getInt("tborrowed");
+                            }
+                        }   
+                    }
+                    // update book rating and time borrowed
+                    String updateRatingSQL = "UPDATE BOOKS SET rating = ?, tborrowed = ? WHERE " +
+                        "callnum = ?";
+                    PreparedStatement pstmt2 = con.prepareStatement(updateRatingSQL);
+                    float newBookRating = (bookRating * timeBorrowed + Float.parseFloat(userRating))/(timeBorrowed + 1); 
+                    pstmt2.setFloat(1, newBookRating);
+                    pstmt2.setInt(2, timeBorrowed + 1);
+                    pstmt2.setString(3, callNumber);
+                    pstmt2.executeUpdate();
+                }catch (SQLException ex){
+                    // handle any errors
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }finally{
+                    System.out.println("Book returning performed successfully.");
+                }
+            }
+        }catch (SQLException ex){
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }finally{
+            try{
+                Librarian(con);
+            }catch (Exception ex){
+
+            }
+        }
     }
     public static void ListAllUnReturnedBook(){
 
@@ -671,6 +702,57 @@ public class CSCI3170Proj {
         //sc.close();
     }
 
+    public static void LibraryUser(Connection con){
+        try{
+            Scanner sc_lb = new Scanner(System.in);
+
+            System.out.println("\nWhat kind of operation would you like to perform?");
+            System.out.println("1. Search for Books");
+            System.out.println("2. Show loan record of a user");
+            System.out.println("3. Return to the main menu");
+            System.out.print("Enter your choice: ");
+            int inputLU = 1;
+            try{
+                inputLU = Integer.parseInt(sc_lb.nextLine());
+            }catch (Exception e){
+                System.out.println("catch input " + e);
+            }
+            
+            if(inputLU == 1){
+                Scanner sc_lb1 = new Scanner(System.in);
+                System.out.println("Choose the Search criterion: ");
+                System.out.println("1. call number");
+                System.out.println("2. title");
+                System.out.println("3. author");
+                System.out.print("Choose the search criterion: ");
+                int crit = sc_lb1.nextInt();
+                if(crit == 1){
+                    SearchForBooks_callnum(con);
+                    //Show the result of the search
+                }else if(crit == 2){
+                    SearchForBooks_title(con);
+                    //Show the result of the search
+                }else{ // TO-DO
+                    SearchForBooks_author(con);
+                }
+            }else if(inputLU == 2){ //show all loan record of the user
+                    ShowLoanRecord(con);
+            }else{
+                try{
+                    bookSystem(con);
+                } catch(Exception e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("Fail to escape from Library User to main menu");
+                    System.exit(0);
+                }
+            }
+                   
+        }catch(Exception e){
+            System.out.println("hi");
+            System.out.println (e);
+        }
+    }
+
     public static void Librarian(Connection con) throws ParseException{ // TO-DO
         Scanner sc = new Scanner(System.in);
 
@@ -684,15 +766,7 @@ public class CSCI3170Proj {
         if(inputLib == 1){
             BorrowBook(con);
         }else if(inputLib == 2){ // TO-DO
-            System.out.print("Enter The User ID: ");
-            String user = sc.nextLine();
-            System.out.print("Enter The Call Number: ");
-            String callNumber = sc.nextLine();
-            System.out.print("Enter The Copy Number: ");
-            String CopyNumber = sc.nextLine();
-
-            //if the info input above is equal to borrowing record, then perform returning books; else, cannot return.
-            System.out.println("Book returning performed successfully.");
+            ReturnBook(con);
         }else if(inputLib == 3){ // TO-DO
             System.out.println("Type in the starting date [dd/mm/yy]: ");
             String d1 = sc.nextLine();            
