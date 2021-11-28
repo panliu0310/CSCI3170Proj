@@ -391,7 +391,77 @@ public class CSCI3170Proj {
     * Library User operations end
     * Librarian operations start
     */
+    public static void BorrowBook(Connection con){
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter The User ID: ");
+        String user = sc.nextLine();
+        System.out.print("Enter The Call Number: ");
+        String callNumber = sc.nextLine();
+        System.out.print("Enter The Copy Number: ");
+        String CopyNumber = sc.nextLine();
 
+        boolean canBorrow = false; // if the book is not borrowed, set canBorrow be true
+
+        try {
+            String checkReturnSQL = "SELECT return_date FROM BORROW WHERE " +
+                "callnum = ? AND copynum = ?";
+            PreparedStatement pstmt = con.prepareStatement(checkReturnSQL);
+            pstmt.setString(1, callNumber);
+            pstmt.setInt(2, Integer.parseInt(CopyNumber));
+            ResultSet resultSet = pstmt.executeQuery();
+            if(!resultSet.isBeforeFirst())
+	            canBorrow = true;
+            else{
+                resultSet.last();
+                if (resultSet.getString("return_date") == "null"){
+                    canBorrow = true;
+                } else{
+                    canBorrow = false;
+                }
+            }
+        }catch (SQLException ex){
+            // handle any errors
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+        }finally{
+            if (canBorrow == true){
+                String borrowBookSQL = "INSERT INTO BORROW VALUES(?,?,?,?,?)";
+                try{
+                    PreparedStatement pstmt = con.prepareStatement(borrowBookSQL);
+                    pstmt.setString(1, user);
+                    pstmt.setString(2, callNumber);
+                    pstmt.setString(3, CopyNumber);
+                    String datePattern = "dd/MM/yyyy";
+                    String dateInString = new SimpleDateFormat(datePattern).format(new Date());
+                    pstmt.setString(4, dateInString);
+                    pstmt.setString(5, "null");
+                    pstmt.executeUpdate();
+                    System.out.println("Book borrowing performed successfully.");
+                }catch (SQLException ex){
+                    // handle any errors
+                    System.out.println("SQLException: " + ex.getMessage());
+                    System.out.println("SQLState: " + ex.getSQLState());
+                    System.out.println("VendorError: " + ex.getErrorCode());
+                }
+            }
+            try{
+                Librarian(con);
+            }catch (Exception ex){
+
+            }
+        }
+
+            //check if the user id, call no. and copy no. are exist, if yes:
+            //else
+            System.out.println("Book borrowing failed.");
+    }
+    public static void ReturnBook(){
+
+    }
+    public static void ListAllUnReturnedBook(){
+
+    }
     /*
     * Librarian operations end
     */
@@ -483,19 +553,8 @@ public class CSCI3170Proj {
         System.out.println("4. Return to the main menu");
         System.out.print("Enter your choice: ");
         int inputLib = sc.nextInt();
-        if(inputLib == 1){ // TO-DO
-            System.out.print("Enter The User ID: ");
-            String user = sc.nextLine();
-            System.out.print("Enter The Call Number: ");
-            String callNumber = sc.nextLine();
-            System.out.print("Enter The Copy Number: ");
-            String CopyNumber = sc.nextLine();
-
-            //check if the user id, call no. and copy no. are exist, if yes:
-            //if(user ==  && if callNumber == && if CopyNumber ==) {}
-            System.out.println("Book borrowing performed successfully.");
-            //else
-            System.out.println("Book borrowing failed.");
+        if(inputLib == 1){
+            BorrowBook(con);
         }else if(inputLib == 2){ // TO-DO
             System.out.print("Enter The User ID: ");
             String user = sc.nextLine();
