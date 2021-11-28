@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.sql.PreparedStatement;
 
 public class CSCI3170Proj {
 
@@ -236,6 +235,7 @@ public class CSCI3170Proj {
                         dataSQL += ", " + rowDetail[i];
                     }
                 }
+                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertBooksSQL + "(" + dataSQL + ")");
@@ -356,12 +356,12 @@ public class CSCI3170Proj {
     public static void LoadDatafile(Connection con) { // TO-DO
         Scanner sc = new Scanner(System.in);
         System.out.print("\nType in the Source Data Folder Path: ");
-        String path = sc.nextString();
+        String path = sc.next();
         try{
             //LoadUserCategory(con, path);
-            //LoadLibUser(con, path); // BUG
+            //LoadLibUser(con, path); // BUG user000003 didnt work
             //LoadBookCategory(con, path);
-            //LoadBook(con, path); // TEST-REQUIRED
+            //LoadBook(con, path);
             //LoadCopy(con, path); // TEST-REQUIRED
             //LoadBorrow(con, path); // TEST-REQUIRED
             //LoadAuthorship(con, path); // TEST-REQUIRED
@@ -369,6 +369,8 @@ public class CSCI3170Proj {
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
             System.out.println(ex);
+        }finally{
+            Administrator(con);
         }
     }
 
@@ -434,7 +436,6 @@ public class CSCI3170Proj {
             DeleteTable(con);
         }else if(inputAdmin == 3){ // TO-DO
             LoadDatafile(con);
-            System.out.println("Done. Data is inputted to the database.");
         }else if(inputAdmin == 4){ // TO-DO
             ShowRecord(con);
         }else{
@@ -468,31 +469,6 @@ public class CSCI3170Proj {
             if(crit == 1){ // TO-DO
                 System.out.print("Type in the Search Keyword: ");
                 String sk = sc.next();
-                System.out.println(sk);
-                //String select_callnum = "SELECT callnum FROM BOOKS WHERE callnum = " + sk; 
-                try{
-                    //System.out.println(sk);
-                    PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS WHERE callnum = ?");                    
-                    ps.setString(1, sk);
-                    
-                    ResultSet rs = ps.executeQuery();
-                    while(rs.next()){
-                        System.out.print("callnum: " + rs.getString("callnum"));
-                        System.out.print(", title: " + rs.getString("title"));
-                        System.out.print(", publisg: " + rs.getDate("publisg"));
-                        System.out.println(", rating: " + rs.getFloat("rating"));
-                        System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
-                        System.out.println(", bcid: " + rs.getInt("bcid"));
-                    }
-                    //System.out.println(ps);
-                    System.out.println("End of Query");
-                }catch (Exception ex){
-                    System.out.println("SQL Exception: " + ex.getMessage());
-                   // System.out.println("SQLState: " + ex.getSQLState());
-                   // System.out.println("VendorError: " + ex.getErrorCode());
-                }finally{
-                    LibraryUser(con);
-                }
                 //Show the result of the search
             }else if(crit == 2){ // TO-DO
                 System.out.print("Type in the title: ");
