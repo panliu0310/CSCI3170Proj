@@ -33,25 +33,27 @@ public class CSCI3170Proj {
         String TABLE_Books = "CREATE TABLE BOOKS(" +
             "callnum VARCHAR(8) PRIMARY KEY, " +
             "title VARCHAR(30) NOT NULL, " +
-            "publish VARCHAR(10), " +
+            "publish VARCHAR(10) NOT NULL, " +
             "rating FLOAT, " +
             "tborrowed INTEGER(2) NOT NULL, " +
             "bcid INTEGER(1) NOT NULL)";
         String TABLE_Copy = "CREATE TABLE COPY(" +
-            "callnum VARCHAR(8)," +
-            "copynum INT(1) PRIMARY KEY," +
+            "callnum VARCHAR(8) NOT NULL," +
+            "copynum INTEGER NOT NULL," +
+            "PRIMARY KEY (callnum, copynum)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
         String TABLE_Borrow = "CREATE TABLE BORROW(" +
-            "libuid VARCHAR(10), " +
-            "callnum VARCHAR(8), " +
-            "copynum INT(1), " +
-            "checkout VARCHAR(10) PRIMARY KEY, " +
+            "libuid VARCHAR(10) NOT NULL, " +
+            "callnum VARCHAR(8) NOT NULL, " +
+            "copynum INTEGER NOT NULL, " +
+            "checkout VARCHAR(10) NOT NULL, " +
             "return_date VARCHAR(10), " +
+            "PRIMARY KEY (libuid, callnum, copynum, checkout)," +
             "FOREIGN KEY (libuid) REFERENCES LIBUSER(libuid), " +
-            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum), " +
-            "FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
+            "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
+            //"FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
         String TABLE_Authorship = "CREATE TABLE AUTHORSHIP(" +
-            "aname VARCHAR(25) PRIMARY KEY, " +
+            "aname VARCHAR(767) PRIMARY KEY, " +
             "callnum VARCHAR(8), " +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))" ;
         try {
@@ -133,8 +135,6 @@ public class CSCI3170Proj {
             System.out.println("Done. User_Category Loaded.");
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadLibUser(Connection con, String path) {
@@ -169,8 +169,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadBookCategory(Connection con, String path) {
@@ -203,8 +201,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadBook(Connection con, String path) {
@@ -235,7 +231,6 @@ public class CSCI3170Proj {
                         dataSQL += ", " + rowDetail[i];
                     }
                 }
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertBooksSQL + "(" + dataSQL + ")");
@@ -249,8 +244,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadCopy(Connection con, String path) {
@@ -270,7 +263,6 @@ public class CSCI3170Proj {
                         dataSQL += ", " + rowDetail[i];
                     }
                 }
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertCopySQL + "(" + dataSQL + ")");
@@ -284,8 +276,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadBorrow(Connection con, String path) {
@@ -306,7 +296,6 @@ public class CSCI3170Proj {
                 0,1,2,3,4 ==> 2,0,1,3,4
                 */
                 dataSQL += "'" + rowDetail[2] + "', '" + rowDetail[0] + "', " + rowDetail[1] + ", '" + rowDetail[3] + "', '" + rowDetail[4] + "'";
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertBorrowSQL + "(" + dataSQL + ")");
@@ -320,8 +309,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadAuthorship(Connection con, String path) {
@@ -349,8 +336,6 @@ public class CSCI3170Proj {
             }
         }catch (Exception ex){
             System.out.println(ex);
-        }finally{
-            Administrator(con);
         }
     }
     public static void LoadDatafile(Connection con) { // TO-DO
@@ -358,13 +343,13 @@ public class CSCI3170Proj {
         System.out.print("\nType in the Source Data Folder Path: ");
         String path = sc.next();
         try{
-            //LoadUserCategory(con, path);
-            //LoadLibUser(con, path); // BUG user000003 didnt work
-            //LoadBookCategory(con, path);
-            //LoadBook(con, path);
-            //LoadCopy(con, path); // TEST-REQUIRED
-            //LoadBorrow(con, path); // TEST-REQUIRED
-            //LoadAuthorship(con, path); // TEST-REQUIRED
+            LoadUserCategory(con, path);
+            LoadLibUser(con, path); // BUG user000003 didnt work
+            LoadBookCategory(con, path);
+            LoadBook(con, path);
+            LoadCopy(con, path);
+            LoadBorrow(con, path);
+            LoadAuthorship(con, path);
             
             System.out.println("Data is inputted to the database.");
         }catch (Exception ex){
