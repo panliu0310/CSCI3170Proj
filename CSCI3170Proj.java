@@ -507,7 +507,7 @@ public class CSCI3170Proj {
         try{
             Scanner sc_lb = new Scanner(System.in);
 
-<<<<<<< HEAD
+
             System.out.println("\nWhat kind of operation would you like to perform?");
             System.out.println("1. Search for Books");
             System.out.println("2. Show loan record of a user");
