@@ -1,5 +1,6 @@
 import java.io.*;
 import java.io.PrintStream;
+import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -53,8 +54,9 @@ public class CSCI3170Proj {
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))";
             //"FOREIGN KEY (copynum) REFERENCES COPY(copynum))";
         String TABLE_Authorship = "CREATE TABLE AUTHORSHIP(" +
-            "aname VARCHAR(767) PRIMARY KEY, " +
+            "aname VARCHAR(767), " +
             "callnum VARCHAR(8), " +
+            "PRIMARY KEY (aname, callnum)," +
             "FOREIGN KEY (callnum) REFERENCES BOOKS(callnum))" ;
         try {
             Statement stmt = con.createStatement();
@@ -132,7 +134,6 @@ public class CSCI3170Proj {
                 }
                 data = "";
             }
-            System.out.println("Done. User_Category Loaded.");
         }catch (Exception ex){
             System.out.println(ex);
         }
@@ -141,31 +142,25 @@ public class CSCI3170Proj {
         try{
             Scanner infile = new Scanner(new File("./" + path + "/user.txt"));
             String dataTXT = "";
-            String dataSQL = "";
-            String InsertLibUserSQL = "INSERT INTO LIBUSER VALUES";
+            String InsertLibUserPSQL = "INSERT INTO LIBUSER VALUES(?,?,?,?,?)";
             while (infile.hasNextLine()){
                 dataTXT = dataTXT + infile.nextLine();
                 String[] rowDetail = new String[5];
                 rowDetail = dataTXT.split("\\t");
-                for (int i = 0; i < 5; i++) { // 0,1,3 are string; 2,4 are integer
-                    if (i == 0) { // need to add single quote '' for string 
-                        dataSQL += "'" + rowDetail[i] + "'";
-                    } else if (i == 1 || i == 3) {
-                        dataSQL += ", '" + rowDetail[i] + "'"; // BUGS
-                    } else{
-                        dataSQL += ", " + rowDetail[i];
-                    }
-                }
-                Statement stmt = con.createStatement();
+                PreparedStatement pstmt = con.prepareStatement(InsertLibUserPSQL);
+                pstmt.setString(1, rowDetail[0]);
+                pstmt.setString(2, rowDetail[1]);
+                pstmt.setInt(3, Integer.parseInt(rowDetail[2]));
+                pstmt.setString(4, rowDetail[3]);
+                pstmt.setInt(5, Integer.parseInt(rowDetail[4]));
                 try{
-                    stmt.executeUpdate(InsertLibUserSQL + "(" + dataSQL + ")");
+                    pstmt.executeUpdate();
                 }catch (SQLException ex){
                     System.out.println("SQLException: " + ex.getMessage());
                     System.out.println("SQLState: " + ex.getSQLState());
                     System.out.println("VendorError: " + ex.getErrorCode());
                 }
                 dataTXT = "";
-                dataSQL = "";
             }
         }catch (Exception ex){
             System.out.println(ex);
@@ -322,7 +317,6 @@ public class CSCI3170Proj {
                 String[] rowDetail = new String[8]; // there are 8 columns in book.txt
                 rowDetail = dataTXT.split("\\t"); // split string by tab
                 dataSQL += "'" + rowDetail[3] + "', '" + rowDetail[0] + "' ";
-                System.out.println(dataSQL);
                 Statement stmt = con.createStatement();
                 try{
                     stmt.executeUpdate(InsertAuthorshipSQL + "(" + dataSQL + ")");
