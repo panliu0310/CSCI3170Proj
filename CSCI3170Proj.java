@@ -832,7 +832,7 @@ public class CSCI3170Proj {
         System.out.println("\nWhat kind of operation would you like to perform?");
         System.out.println("1. Book Borrowing");
         System.out.println("2. Book Returning");
-        System.out.println("3. List all un-returbned book copies which are checked-out within a period");
+        System.out.println("3. List all un-returned book copies which are checked-out within a period");
         System.out.println("4. Return to the main menu");
         System.out.print("Enter your choice: ");
         int inputLib = sc.nextInt();
