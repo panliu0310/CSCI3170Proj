@@ -698,6 +698,24 @@ public class CSCI3170Proj {
         }
     }
 
+    public static ArrayList<SortDate> reverseArrayList(ArrayList<SortDate> alist)
+    {
+        // Arraylist for storing reversed elements
+
+        ArrayList<SortDate> revArrayList = new ArrayList<SortDate>();
+
+        for (int i = alist.size() - 1; i >= 0; i--) {
+ 
+
+            // Append the elements in reverse order
+
+            revArrayList.add(alist.get(i));
+
+        }
+        // Return the reversed arraylist
+        return revArrayList;
+    }
+
     public static void ListAllUnReturnedBook(Connection con){
         Scanner scLAURB = new Scanner(System.in);
         System.out.print("Type in the starting date [dd/mm/yyyy]: ");
@@ -721,7 +739,10 @@ public class CSCI3170Proj {
                     sortDate.add(sd1); //add the obj tho the Array List                    
                 }  
             }
-            Collections.reverse(sortDate);
+            
+            Collections.sort(sortDate);
+            sortDate = reverseArrayList(sortDate);
+
             for(SortDate obj: sortDate){
                 //sortDate[i]
                 System.out.print("| " + obj._libuid + " ");
