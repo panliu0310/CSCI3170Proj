@@ -751,7 +751,7 @@ public class CSCI3170Proj {
                 
                 
             }
-            Collections.sort(sortDate);
+            Collections.reverse(sortDate);
             for(SortDate obj: sortDate){
                 //sortDate[i]
                 System.out.print("| " + obj._libuid + " ");
