@@ -443,20 +443,20 @@ public class CSCI3170Proj {
         String author = sc3.nextLine();
         //Show the result of the search
         try{
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN AUTHORSHIP WHERE BOOKS.callnum = AUTHORSHIP.callnum AND aname LIKE CONCAT('%',?,'%')");                    
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN AUTHORSHIP JOIN BOOK_CATEGORY JOIN COPY WHERE " + 
+                "BOOKS.callnum = AUTHORSHIP.callnum AND BOOKS.bcid = BOOK_CATEGORY.bcid AND BOOKS.callnum = COPY.callnum " +
+                "AND aname LIKE CONCAT('%',?,'%')"); 
             ps.setString(1, author);
-            
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                System.out.print("callnum: " + rs.getString("callnum"));
-                System.out.print(", title: " + rs.getString("title"));
-                System.out.print(", publish: " + rs.getString("publish"));
-                System.out.println(", rating: " + rs.getFloat("rating"));
-                System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
-                System.out.println(", bcid: " + rs.getInt("bcid"));
-                System.out.println("End of Query");
+                System.out.print("|" + rs.getString("callnum"));
+                System.out.print("|" + rs.getString("title"));
+                System.out.print("|" + rs.getString("bcname"));
+                System.out.print("|" + rs.getString("aname"));
+                System.out.print("|" + rs.getFloat("rating"));
+                System.out.print("|" + rs.getInt("copynum") + "|\n");
             }
-            
+            System.out.println("End of Query");   
         }catch (Exception ex){
             System.out.println("SQL Exception: " + ex.getMessage());
         }finally{
