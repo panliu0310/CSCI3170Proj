@@ -389,19 +389,21 @@ public class CSCI3170Proj {
         System.out.print("Type in the Search Keyword: ");
         String sk = sc1.next();
         try{
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS WHERE callnum = ?");                    
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN AUTHORSHIP JOIN BOOK_CATEGORY JOIN COPY WHERE " + 
+            "BOOKS.callnum = AUTHORSHIP.callnum AND BOOKS.bcid = BOOK_CATEGORY.bcid AND BOOKS.callnum = COPY.callnum " +
+            "AND BOOKS.callnum = ?");                    
             ps.setString(1, sk);
-            
+            System.out.println("|Call Num|Title|Book Category|Author|Rating|Available No. of Copy");
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                System.out.print("callnum: " + rs.getString("callnum"));
-                System.out.print(", title: " + rs.getString("title"));
-                System.out.print(", publish: " + rs.getString("publish"));
-                System.out.println(", rating: " + rs.getFloat("rating"));
-                System.out.print(", tbborrowed: " + rs.getInt("tborrowed"));
-                System.out.println(", bcid: " + rs.getInt("bcid"));
-                System.out.println("End of Query");
-            }             
+                System.out.print("|" + rs.getString("callnum"));
+                System.out.print("|" + rs.getString("title"));
+                System.out.print("|" + rs.getString("bcname"));
+                System.out.print("|" + rs.getString("aname"));
+                System.out.print("|" + rs.getFloat("rating"));
+                System.out.print("|" + rs.getInt("copynum") + "|\n");
+            }
+            System.out.println("End of Query");      
         }catch (Exception ex){
             System.out.println("SQL Exception: " + ex.getMessage());                  
         }finally{
@@ -419,7 +421,7 @@ public class CSCI3170Proj {
                 "BOOKS.callnum = AUTHORSHIP.callnum AND BOOKS.bcid = BOOK_CATEGORY.bcid AND BOOKS.callnum = COPY.callnum " +
                 "AND title LIKE CONCAT('%',?,'%')");               
             ps.setString(1, title);
-            System.out.println("|CallNum|Title|Book Category|Author|Rating|Available No. of Copy");
+            System.out.println("|Call Num|Title|Book Category|Author|Rating|Available No. of Copy");
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 System.out.print("|" + rs.getString("callnum"));
@@ -447,6 +449,7 @@ public class CSCI3170Proj {
                 "BOOKS.callnum = AUTHORSHIP.callnum AND BOOKS.bcid = BOOK_CATEGORY.bcid AND BOOKS.callnum = COPY.callnum " +
                 "AND aname LIKE CONCAT('%',?,'%')"); 
             ps.setString(1, author);
+            System.out.println("|Call Num|Title|Book Category|Author|Rating|Available No. of Copy");
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
                 System.out.print("|" + rs.getString("callnum"));
@@ -471,20 +474,25 @@ public class CSCI3170Proj {
         try{
             System.out.println("Loan Record: ");
             //show all loan record of the user
-            PreparedStatement ps = con.prepareStatement("SELECT BORROW.callnum, BORROW.copynum, BOOKS.title, AUTHORSHIP.aname, BORROW.checkout, BORROW.return_date FROM BORROW JOIN AUTHORSHIP JOIN BOOKS JOIN LIBUSER WHERE BOOKS.callnum = AUTHORSHIP.callnum AND BORROW.libuid = LIBUSER.libuid AND BOOKS.callnum = BORROW.callnum AND BORROW.libuid = ?");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM BOOKS JOIN BORROW JOIN AUTHORSHIP WHERE " + 
+            "BOOKS.callnum = AUTHORSHIP.callnum AND BOOKS.callnum = BORROW.callnum " +
+            "AND BORROW.libuid = ?");
             ps.setString(1, userid);
-
+            System.out.println("|CallNum|CopyNum|Title|Author|Check-out|Returned?");
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                System.out.print("callnum: " + rs.getString("callnum"));
-                System.out.print(", copynum: " + rs.getInt("copynum"));
-                System.out.print(", title: " + rs.getString("title"));
-                System.out.println(", author: " + rs.getString("aname"));
-                System.out.print(", checkout date: " + rs.getString("checkout"));
-                System.out.println(", return date: " + rs.getString("return_date"));
-                System.out.println("End of Query");
+                System.out.print("|" + rs.getString("callnum"));
+                System.out.print("|" + rs.getString("copynum"));
+                System.out.print("|" + rs.getString("title"));
+                System.out.print("|" + rs.getString("aname"));
+                System.out.print("|" + rs.getString("checkout"));
+                if (rs.getString("return_date").equals("null")){
+                    System.out.print("|No|\n");
+                }else{
+                    System.out.print("|Yes|\n");
+                }
             }
-            
+            System.out.println("End of Query");
         }catch (Exception ex){
             System.out.println("SQL Exception: " + ex.getMessage());
         }finally{
@@ -508,8 +516,9 @@ public class CSCI3170Proj {
         boolean canBorrow = false; // if the book is not borrowed, set canBorrow be true
 
         try {
-            String checkReturnSQL = "SELECT return_date FROM BORROW WHERE " +
-                "callnum = ? AND copynum = ?";
+            String checkReturnSQL = "SELECT * FROM BORROW WHERE " +
+                "callnum = ? AND copynum = ? " +
+                "ORDER BY return_date";
             PreparedStatement pstmt = con.prepareStatement(checkReturnSQL);
             pstmt.setString(1, callNumber);
             pstmt.setInt(2, Integer.parseInt(CopyNumber));
@@ -518,10 +527,10 @@ public class CSCI3170Proj {
 	            canBorrow = true;
             else{
                 resultSet.last();
-                if (resultSet.getString("return_date") == "null"){
-                    canBorrow = true;
-                } else{
+                if (resultSet.getString("return_date").equals("null")){
                     canBorrow = false;
+                } else{
+                    canBorrow = true;
                 }
             }
         }catch (SQLException ex){
@@ -549,6 +558,8 @@ public class CSCI3170Proj {
                     System.out.println("SQLState: " + ex.getSQLState());
                     System.out.println("VendorError: " + ex.getErrorCode());
                 }
+            }else{
+                System.out.println("[Error]: The book has been borrowed.");
             }
             try{
                 Librarian(con);
